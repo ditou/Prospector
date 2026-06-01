@@ -322,23 +322,72 @@ async function buscar() {
   }
 }
 
-// Scraping de emails via allorigins proxy (evita CORS)
+// Scraping de emails — misma lógica que Python: mailto: links + regex, múltiples páginas
 async function scrapeEmails(places) {
-  const PROXY = 'https://api.allorigins.win/get?url=';
   const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
-  const SKIP = ['sentry.io','wixpress.','example.','noreply','no-reply','@2x','png','jpg','svg','webp'];
+  const SKIP = ['sentry.io','wixpress.','example.com','noreply','no-reply',
+                'w3.org','schema.org','googleapis','cloudflare','jquery',
+                '@2x','.png','.jpg','.svg','.webp','.gif'];
 
+  // Proxies CORS en orden de confiabilidad — prueba uno por uno
+  const PROXIES = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+  ];
+
+  async function fetchHTML(targetUrl) {
+    for (const proxyFn of PROXIES) {
+      try {
+        const resp = await fetch(proxyFn(targetUrl), { signal: AbortSignal.timeout(7000) });
+        if (!resp.ok) continue;
+        const ct = resp.headers.get('content-type') || '';
+        // allorigins devuelve JSON, los otros devuelven texto directo
+        if (ct.includes('application/json')) {
+          const j = await resp.json();
+          return j.contents || '';
+        }
+        return await resp.text();
+      } catch { continue; }
+    }
+    return '';
+  }
+
+  function extractEmails(html) {
+    const found = new Set();
+    // Estrategia 1: mailto: links (más confiable, igual que el script Python)
+    const mailtoRe = /mailto:([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/gi;
+    let m;
+    while ((m = mailtoRe.exec(html)) !== null) found.add(m[1].toLowerCase());
+    // Estrategia 2: regex sobre texto plano
+    const allEmails = html.match(EMAIL_RE) || [];
+    allEmails.forEach(e => found.add(e.toLowerCase()));
+    // Filtrar basura
+    return [...found].filter(e => !SKIP.some(s => e.includes(s)));
+  }
+
+  async function getEmailsForSite(baseUrl) {
+    // Páginas candidatas: home + rutas de contacto comunes
+    const base = baseUrl.replace(/\/$/, '');
+    const pages = [base, `${base}/contacto`, `${base}/contact`, `${base}/nosotros`, `${base}/about`];
+    const allEmails = new Set();
+
+    for (const page of pages) {
+      const html = await fetchHTML(page);
+      if (!html) continue;
+      extractEmails(html).forEach(e => allEmails.add(e));
+      if (allEmails.size > 0) break; // Con uno encontrado alcanza
+    }
+    return [...allEmails];
+  }
+
+  // Procesar en paralelo pero con límite para no saturar proxies
   const results = await Promise.allSettled(
     places.map(async (p) => {
       if (!p.website) return p;
       try {
-        const url = PROXY + encodeURIComponent(p.website);
-        const resp = await fetch(url, { signal: AbortSignal.timeout(6000) });
-        const json = await resp.json();
-        const html = json.contents || '';
-        const found = [...new Set(html.match(EMAIL_RE) || [])];
-        const clean = found.filter(e => !SKIP.some(s => e.includes(s)));
-        return { ...p, email: clean[0] || null, emails_extra: clean.slice(1) };
+        const emails = await getEmailsForSite(p.website);
+        return { ...p, email: emails[0] || null, emails_extra: emails.slice(1) };
       } catch {
         return p;
       }
