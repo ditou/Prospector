@@ -304,8 +304,11 @@ async function buscar() {
       gmaps_url: p.googleMapsUri || `https://www.google.com/maps/search/${encodeURIComponent((p.displayName?.text||'') + ' ' + zona)}`
     }));
 
+    setProgress(75, 'Buscando emails en sitios web...');
+    const rawWithEmails = await scrapeEmails(raw);
+
     setProgress(85, 'Enriqueciendo con IA...');
-    prospects = await enrichAI(raw, rubros.map(r => r.textContent).join(', '), zona);
+    prospects = await enrichAI(rawWithEmails, rubros.map(r => r.textContent).join(', '), zona);
 
     setProgress(100, '¡Listo!');
     await sleep(300);
@@ -318,6 +321,32 @@ async function buscar() {
     setLoading(false);
   }
 }
+
+// Scraping de emails via allorigins proxy (evita CORS)
+async function scrapeEmails(places) {
+  const PROXY = 'https://api.allorigins.win/get?url=';
+  const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  const SKIP = ['sentry.io','wixpress.','example.','noreply','no-reply','@2x','png','jpg','svg','webp'];
+
+  const results = await Promise.allSettled(
+    places.map(async (p) => {
+      if (!p.website) return p;
+      try {
+        const url = PROXY + encodeURIComponent(p.website);
+        const resp = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        const json = await resp.json();
+        const html = json.contents || '';
+        const found = [...new Set(html.match(EMAIL_RE) || [])];
+        const clean = found.filter(e => !SKIP.some(s => e.includes(s)));
+        return { ...p, email: clean[0] || null, emails_extra: clean.slice(1) };
+      } catch {
+        return p;
+      }
+    })
+  );
+  return results.map((r, i) => r.status === 'fulfilled' ? r.value : places[i]);
+}
+
 
 async function enrichAI(places, rubros, zona) {
   const listStr = places.map((p, i) =>
@@ -382,11 +411,12 @@ function renderResults(data) {
             <div class="pcard-name">${esc(p.name)}</div>
             <div class="pcard-type">${esc(p.type)}</div>
           </div>
-          ${p.rating ? `<span class="rating-badge">★ ${p.rating}${p.reviews ? ' <span style="font-weight:400;color:var(--muted2)">(${p.reviews})</span>' : ''}</span>` : ''}
+          ${p.rating ? '<span class="rating-badge">★ ' + p.rating + (p.reviews ? ' <span style="font-weight:400;color:var(--muted2)">(' + p.reviews + ')</span>' : '') + '</span>' : ''}
         </div>
         <div class="meta-row">
           <span class="meta-chip">📍 ${esc(p.address)}</span>
           ${p.phone ? `<span class="meta-chip highlight">📞 ${esc(p.phone)}</span>` : ''}
+          ${p.email ? '<span class="meta-chip highlight">📧 ' + esc(p.email) + '</span>' : ''}
           ${p.website ? `<span class="meta-chip">🌐 web</span>` : ''}
         </div>
         <div class="divider"></div>
@@ -420,15 +450,15 @@ function copiar(btn, txt) {
 }
 function copiarTodo(btn, idx) {
   const p = prospects[idx];
-  const txt = `Empresa: ${p.name}\nTipo: ${p.type}\nDirección: ${p.address}\nTeléfono: ${p.phone||'N/A'}\nWeb: ${p.website||'N/A'}\nRating: ${p.rating||'N/A'}\nMaps: ${p.gmaps_url}\nPain Point: ${p.pain_point}\nMensaje: ${p.mensaje_apertura}`;
+  const txt = `Empresa: ${p.name}\nTipo: ${p.type}\nDirección: ${p.address}\nTeléfono: ${p.phone||'N/A'}\nEmail: ${p.email||'N/A'}\nWeb: ${p.website||'N/A'}\nRating: ${p.rating||'N/A'}\nMaps: ${p.gmaps_url}\nPain Point: ${p.pain_point}\nMensaje: ${p.mensaje_apertura}`;
   navigator.clipboard.writeText(txt);
   btn.textContent = 'Copiado ✓'; btn.classList.add('ok');
   setTimeout(() => { btn.textContent = 'Copiar datos'; btn.classList.remove('ok'); }, 2000);
 }
 function exportCSV() {
   if (!prospects.length) return;
-  const h = ['Empresa','Tipo','Dirección','Teléfono','Web','Rating','Google Maps','Pain Point','Mensaje'];
-  const rows = prospects.map(p => [p.name,p.type,p.address,p.phone||'',p.website||'',p.rating||'',p.gmaps_url,p.pain_point,p.mensaje_apertura].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const h = ['Empresa','Tipo','Dirección','Teléfono','Email','Web','Rating','Google Maps','Pain Point','Mensaje'];
+  const rows = prospects.map(p => [p.name,p.type,p.address,p.phone||'',p.email||'',p.website||'',p.rating||'',p.gmaps_url,p.pain_point,p.mensaje_apertura].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
   const csv = [h.join(','),...rows].join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
