@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autopilot · Prospector Real</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --card: #111;
+    --card2: #161616;
+    --border: #1e1e1e;
+    --border2: #2a2a2a;
+    --accent: #c8f135;
+    --accent-dim: #8aaa22;
+    --text: #efefef;
+    --muted: #555;
+    --muted2: #888;
+    --danger: #ff4444;
+    --warning: #f5a623;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .badge-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    background: var(--accent);
+    color: #000;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 32px 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    line-height: 1.6;
+  }
+
+  /* ── API KEY SETUP ── */
+  .api-setup {
+    margin: 20px;
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .api-header {
+    padding: 14px 16px;
+    background: #0d1a00;
+    border-bottom: 1px solid #1a3000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .api-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .api-dot.red { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+  .api-title {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .api-body { padding: 14px 16px; }
+  .api-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .api-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .api-input:focus { border-color: var(--accent); }
+  .api-input::placeholder { color: var(--muted); }
+  .btn-connect {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .btn-connect:hover { opacity: 0.85; }
+  .api-hint {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .api-hint a { color: var(--accent-dim); }
+
+  /* ── FILTERS ── */
+  .filters-wrap {
+    margin: 0 20px;
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .filters-wrap.active { opacity: 1; pointer-events: all; }
+
+  .section-label {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 20px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .fcard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  label {
+    display: block;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--muted2);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 14px;
+  }
+  .tag {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted2);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--text); }
+  .tag.on { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  select, input[type=number] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  select:focus, input[type=number]:focus { border-color: var(--accent); }
+  select option { background: #1a1a1a; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row2 select, .row2 input { margin-bottom: 0; }
+
+  /* ── GENERATE BTN ── */
+  .btn-gen {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.1s, opacity 0.2s;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .btn-gen:active { transform: scale(0.98); }
+  .btn-gen:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .spin {
+    width: 18px; height: 18px;
+    border: 2.5px solid #00000030;
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PROGRESS ── */
+  .prog-wrap { display: none; margin-bottom: 16px; }
+  .prog-bar {
+    height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 6px;
+  }
+  .prog-fill {
+    height: 100%; background: var(--accent); width: 0%;
+    transition: width 0.4s ease;
+  }
+  .prog-text {
+    font-size: 10px; font-family: 'Space Mono', monospace; color: var(--muted2);
+    text-align: center;
+  }
+
+  /* ── ERROR ── */
+  .err {
+    background: #180000; border: 1px solid var(--danger);
+    color: var(--danger); border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; font-family: 'Space Mono', monospace;
+    margin-bottom: 14px; display: none; line-height: 1.5;
+  }
+
+  /* ── RESULTS ── */
+  #results { display: none; margin: 0 20px; }
+
+  .res-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .res-count { font-size: 11px; font-family: 'Space Mono', monospace; color: var(--muted2); }
+  .btn-csv {
+    font-size: 10px; font-family: 'Space Mono', monospace;
+    background: transparent; border: 1px solid var(--accent);
+    color: var(--accent); padding: 6px 12px; border-radius: 6px;
+    cursor: pointer; font-weight: 700; transition: all 0.15s;
+  }
+  .btn-csv:hover { background: var(--accent); color: #000; }
+
+  /* Prospect card */
+  .pcard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    animation: fadeUp 0.3s ease both;
+    position: relative;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+  .pcard-accent { height: 3px; background: var(--accent); }
+
+  .pcard-body { padding: 14px 16px; }
+
+  .pcard-top {
+    display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px;
+  }
+  .pcard-name { font-size: 15px; font-weight: 700; line-height: 1.2; margin-bottom: 2px; }
+  .pcard-type {
+    font-size: 10px; font-family: 'Space Mono', monospace;
+    color: var(--accent); letter-spacing: 0.5px;
+  }
+  .rating-badge {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    font-weight: 700; padding: 3px 8px; border-radius: 20px;
+    background: #1a2e00; color: var(--accent); border: 1px solid #3a5500;
+    white-space: nowrap; flex-shrink: 0; margin-left: 8px;
+  }
+
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+  }
+  .meta-chip {
+    font-size: 10px; font-family: 'Space Mono', monospace;
+    background: var(--card2); border: 1px solid var(--border2);
+    color: var(--muted2); padding: 3px 8px; border-radius: 6px;
+  }
+  .meta-chip.highlight { color: var(--text); border-color: var(--border2); }
+
+  .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  .info-block { margin-bottom: 10px; }
+  .info-label {
+    font-size: 9px; font-family: 'Space Mono', monospace;
+    color: var(--accent); letter-spacing: 1.5px; margin-bottom: 4px;
+  }
+  .info-val { font-size: 12px; color: var(--muted2); line-height: 1.5; }
+  .info-val a { color: var(--accent-dim); text-decoration: none; word-break: break-all; }
+
+  .msg-box {
+    background: var(--bg); border: 1px dashed var(--border2);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  }
+  .msg-label {
+    font-size: 9px; font-family: 'Space Mono', monospace;
+    color: var(--muted); letter-spacing: 1.5px; margin-bottom: 5px;
+  }
+  .msg-text { font-size: 12px; color: #ccc; line-height: 1.6; font-style: italic; }
+
+  .pcard-actions { display: flex; gap: 8px; }
+  .btn-sm {
+    flex: 1; font-size: 10px; font-family: 'Space Mono', monospace;
+    background: transparent; border: 1px solid var(--border2);
+    color: var(--muted2); padding: 8px 6px; border-radius: 7px;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.ok { border-color: #3a5500; color: var(--accent); }
+
+  .no-results {
+    text-align: center; padding: 32px 20px;
+    font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted);
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">Autopilot<span>.</span></div>
+  <div class="badge-pill">PROSPECTOR REAL</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Empresas<br><em>reales.</em><br>Leads reales.</h1>
+  <p>// Google Maps API → negocios reales en Argentina<br>// Filtrá por rubro, zona y tamaño</p>
+</div>
+
+<!-- API KEY SETUP -->
+<div class="api-setup" id="apiSetup">
+  <div class="api-header">
+    <div class="api-dot red" id="apiDot"></div>
+    <div class="api-title" id="apiTitle">SIN CONECTAR · INGRESÁ TU API KEY</div>
+  </div>
+  <div class="api-body">
+    <div class="api-row">
+      <input class="api-input" type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" />
+      <button class="btn-connect" onclick="conectarAPI()">Conectar</button>
+    </div>
+    <div class="api-hint">
+      Tu key se usa solo en tu navegador, nunca se envía a ningún servidor.<br>
+      APIs requeridas: <strong style="color:#c8f135">Maps JavaScript API</strong> + <strong style="color:#c8f135">Places API</strong><br>
+      <a href="https://console.cloud.google.com/apis/library" target="_blank">→ Habilitar APIs en Google Cloud</a>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS (locked until API connected) -->
+<div class="filters-wrap" id="filtersWrap">
+
+  <div class="section-label">¿Qué tipo de empresa buscás?</div>
+
+  <div class="fcard">
+    <label>Rubro / industria</label>
+    <div class="tags" id="tRubro">
+      <span class="tag" data-q="inmobiliaria">Inmobiliaria</span>
+      <span class="tag" data-q="logística transporte">Logística</span>
+      <span class="tag" data-q="clínica médica salud">Salud</span>
+      <span class="tag" data-q="escuela instituto educación">Educación</span>
+      <span class="tag" data-q="tienda ropa retail">Retail</span>
+      <span class="tag" data-q="restaurante gastronomía">Gastronomía</span>
+      <span class="tag" data-q="estudio contable">Contabilidad</span>
+      <span class="tag" data-q="estudio jurídico abogados">Legal</span>
+      <span class="tag" data-q="agencia marketing digital">Agencia Mkt</span>
+      <span class="tag" data-q="constructora">Construcción</span>
+      <span class="tag" data-q="seguro aseguradora">Seguros</span>
+      <span class="tag" data-q="concesionaria autos">Automotriz</span>
+    </div>
+
+    <label>Ciudad / zona</label>
+    <div class="tags" id="tZona">
+      <span class="tag on" data-loc="Buenos Aires, Argentina" data-lat="-34.6037" data-lng="-58.3816">CABA</span>
+      <span class="tag" data-loc="La Plata, Argentina" data-lat="-34.9205" data-lng="-57.9536">La Plata</span>
+      <span class="tag" data-loc="Rosario, Argentina" data-lat="-32.9587" data-lng="-60.6931">Rosario</span>
+      <span class="tag" data-loc="Córdoba, Argentina" data-lat="-31.4135" data-lng="-64.1811">Córdoba</span>
+      <span class="tag" data-loc="Mendoza, Argentina" data-lat="-32.8908" data-lng="-68.8272">Mendoza</span>
+      <span class="tag" data-loc="Mar del Plata, Argentina" data-lat="-38.0055" data-lng="-57.5426">Mdp</span>
+      <span class="tag" data-loc="Tucumán, Argentina" data-lat="-26.8083" data-lng="-65.2176">Tucumán</span>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label>Cantidad de resultados</label>
+        <select id="sCantidad">
+          <option value="5">5 empresas</option>
+          <option value="10" selected>10 empresas</option>
+          <option value="20">20 empresas</option>
+        </select>
+      </div>
+      <div>
+        <label>Rating mínimo</label>
+        <select id="sRating">
+          <option value="0">Cualquiera</option>
+          <option value="3.5">3.5+</option>
+          <option value="4" selected>4.0+</option>
+          <option value="4.5">4.5+</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="err" id="errMsg"></div>
+
+  <button class="btn-gen" id="btnGen" onclick="buscarProspectos()" disabled>
+    <span id="btnTxt">🔍 Buscar Empresas Reales</span>
+    <div class="spin" id="spinEl"></div>
+  </button>
+
+  <div class="prog-wrap" id="progWrap">
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-text" id="progTxt">Buscando en Google Maps...</div>
+  </div>
+
+</div><!-- /filters-wrap -->
+
+<!-- RESULTS -->
+<div id="results">
+  <div class="res-header">
+    <div class="res-count" id="resCount"></div>
+    <button class="btn-csv" onclick="exportCSV()">↓ CSV</button>
+  </div>
+  <div id="prospectList"></div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────
+let API_KEY = '';
+let prospects = [];
+
+// ─── TAG LOGIC ───────────────────────────────────────
+function initTags() {
+  // Rubro: multi-select
+  document.querySelectorAll('#tRubro .tag').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('on'));
+  });
+  // Zona: single-select
+  document.querySelectorAll('#tZona .tag').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#tZona .tag').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+    });
+  });
+}
+initTags();
+
+// ─── API CONNECT ─────────────────────────────────────
+function conectarAPI() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key || key.length < 20) { alert('Ingresá una API Key válida.'); return; }
+  API_KEY = key;
+  document.getElementById('apiDot').classList.remove('red');
+  document.getElementById('apiTitle').textContent = 'CONECTADO · GOOGLE MAPS API';
+  document.getElementById('filtersWrap').classList.add('active');
+  document.getElementById('btnGen').disabled = false;
+  document.getElementById('apiKeyInput').value = '••••••••••••••••••••••';
+}
+
+// Allow Enter key
+document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') conectarAPI();
+});
+
+// ─── SEARCH ──────────────────────────────────────────
+async function buscarProspectos() {
+  const rubros = [...document.querySelectorAll('#tRubro .tag.on')].map(t => t.dataset.q);
+  const zonaTag = document.querySelector('#tZona .tag.on');
+  const cantidad = parseInt(document.getElementById('sCantidad').value);
+  const ratingMin = parseFloat(document.getElementById('sRating').value);
+
+  if (!rubros.length) { mostrarError('Seleccioná al menos un rubro.'); return; }
+  if (!zonaTag) { mostrarError('Seleccioná una zona.'); return; }
+
+  const lat = parseFloat(zonaTag.dataset.lat);
+  const lng = parseFloat(zonaTag.dataset.lng);
+  const zonaLabel = zonaTag.dataset.loc;
+
+  setLoading(true);
+  document.getElementById('errMsg').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  prospects = [];
+
+  // Load Google Maps SDK first
+  setProgress(10, 'Cargando Google Maps SDK...');
+  await loadGoogleMapsSDK();
+
+  // Fetch per rubro
+  const perRubro = Math.ceil(cantidad / rubros.length);
+  let allResults = [];
+
+  try {
+    for (let i = 0; i < rubros.length; i++) {
+      const rubro = rubros[i];
+      setProgress(Math.round((i / rubros.length) * 70), `Buscando "${rubro}" en ${zonaLabel}...`);
+      const results = await searchPlaces(rubro, lat, lng, perRubro * 2);
+      allResults = allResults.concat(results);
+      await sleep(300);
+    }
+
+    // Dedupe by place_id
+    const seen = new Set();
+    allResults = allResults.filter(p => {
+      if (seen.has(p.place_id)) return false;
+      seen.add(p.place_id);
+      return true;
+    });
+
+    // Filter by rating
+    if (ratingMin > 0) {
+      allResults = allResults.filter(p => (p.rating || 0) >= ratingMin);
+    }
+
+    // Limit
+    allResults = allResults.slice(0, cantidad);
+
+    if (!allResults.length) {
+      mostrarError('No se encontraron resultados con esos filtros. Probá con otros rubros o reducí el rating mínimo.');
+      setLoading(false);
+      return;
+    }
+
+    setProgress(80, 'Enriqueciendo con IA...');
+
+    // Enrich with AI messages
+    prospects = await enrichWithAI(allResults, rubros.join(', '), zonaLabel);
+
+    setProgress(100, 'Listo!');
+    await sleep(400);
+    renderResults(prospects);
+
+  } catch(err) {
+    console.error(err);
+    mostrarError('Error: ' + (err.message || 'Revisá tu API Key o intentá de nuevo.'));
+  } finally {
+    setLoading(false);
+  }
+}
+
+function loadGoogleMapsSDK() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      resolve(); return;
+    }
+    window.__gmapsCallback = resolve;
+    const s = document.createElement('script');
+    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + API_KEY + '&libraries=places&callback=__gmapsCallback&language=es';
+    s.onerror = () => reject(new Error('No se pudo cargar Google Maps. Verificá tu API Key.'));
+    document.head.appendChild(s);
+  });
+}
+
+function searchPlaces(query, lat, lng, maxResults) {
+  return new Promise((resolve, reject) => {
+    const dummyDiv = document.createElement('div');
+    const dummyMap = new google.maps.Map(dummyDiv);
+    const service = new google.maps.places.PlacesService(dummyMap);
+    const request = {
+      query: query,
+      location: new google.maps.LatLng(lat, lng),
+      radius: 20000,
+      language: 'es'
+    };
+    service.textSearch(request, (results, status) => {
+      if (status !== google.maps.places.PlacesServiceStatus.OK &&
+          status !== google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        reject(new Error('Google Places: ' + status)); return;
+      }
+      const places = (results || []).slice(0, maxResults).map(p => ({
+        place_id: p.place_id,
+        name: p.name || 'Sin nombre',
+        address: p.formatted_address || '',
+        rating: p.rating || null,
+        reviews: p.user_ratings_total || 0,
+        type: (p.types || []).map(t => t.replace(/_/g,' ')).slice(0,2).join(', '),
+        website: null,
+        phone: null,
+        maps_url: 'https://www.google.com/maps/place/?q=place_id:' + p.place_id
+      }));
+      resolve(places);
+    });
+  });
+}
+
+// ─── AI ENRICHMENT ───────────────────────────────────
+async function enrichWithAI(places, rubros, zona) {
+  const listStr = places.map((p, i) =>
+    `${i+1}. ${p.name} | ${p.type} | ${p.address} | Rating: ${p.rating || 'N/A'}`
+  ).join('\n');
+
+  const prompt = `Sos un experto en prospección B2B para el mercado argentino.
+
+Tenés esta lista de empresas REALES extraídas de Google Maps:
+${listStr}
+
+Para cada empresa, generá:
+1. Un "pain_point" específico y realista basado en su rubro (problema que podría resolver Autopilot: bots WhatsApp, automatización, integraciones)
+2. Un "mensaje_apertura" corto (2 oraciones) para contactar por WhatsApp/LinkedIn, mencionando el negocio y el problema concreto
+
+Autopilot ofrece: bots WhatsApp para atención/cobranzas, automatización de procesos con IA, integración entre sistemas.
+
+Respondé SOLO con JSON array. Cada objeto:
+{"idx": número (1-based), "pain_point": "...", "mensaje_apertura": "..."}`;
+
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await resp.json();
+  const text = data.content.map(i => i.text || '').join('');
+  const clean = text.replace(/```json|```/g, '').trim();
+
+  let enriched;
+  try { enriched = JSON.parse(clean); } catch(e) { enriched = []; }
+
+  return places.map((p, i) => {
+    const ai = enriched.find(e => e.idx === i + 1) || {};
+    return { ...p, pain_point: ai.pain_point || '', mensaje_apertura: ai.mensaje_apertura || '' };
+  });
+}
+
+// ─── RENDER ──────────────────────────────────────────
+function renderResults(data) {
+  const container = document.getElementById('prospectList');
+  const results = document.getElementById('results');
+  document.getElementById('resCount').textContent = `${data.length} empresas encontradas`;
+  container.innerHTML = '';
+
+  if (!data.length) {
+    container.innerHTML = '<div class="no-results">Sin resultados.<br>Probá con otros filtros.</div>';
+    results.style.display = 'block';
+    return;
+  }
+
+  data.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pcard';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const stars = p.rating ? `⭐ ${p.rating} (${p.reviews})` : 'Sin rating';
+
+    card.innerHTML = `
+      <div class="pcard-accent"></div>
+      <div class="pcard-body">
+        <div class="pcard-top">
+          <div>
+            <div class="pcard-name">${esc(p.name)}</div>
+            <div class="pcard-type">${esc(p.type)}</div>
+          </div>
+          <div class="rating-badge">${stars}</div>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-chip highlight">📍 ${esc(p.address.split(',').slice(0,2).join(','))}</span>
+          ${p.phone ? `<span class="meta-chip">📞 ${esc(p.phone)}</span>` : ''}
+          ${p.website ? `<span class="meta-chip">🌐 Web</span>` : ''}
+        </div>
+
+        <div class="divider"></div>
+
+        ${p.pain_point ? `
+        <div class="info-block">
+          <div class="info-label">PAIN POINT DETECTADO</div>
+          <div class="info-val">→ ${esc(p.pain_point)}</div>
+        </div>` : ''}
+
+        ${p.mensaje_apertura ? `
+        <div class="msg-box">
+          <div class="msg-label">💬 MENSAJE DE APERTURA</div>
+          <div class="msg-text">${esc(p.mensaje_apertura)}</div>
+        </div>` : ''}
+
+        <div class="info-block">
+          <div class="info-label">LINKS</div>
+          <div class="info-val">
+            <a href="${p.maps_url}" target="_blank">→ Ver en Google Maps</a>
+            ${p.website ? `<br><a href="${p.website}" target="_blank">→ ${p.website}</a>` : ''}
+          </div>
+        </div>
+
+        <div class="pcard-actions">
+          ${p.mensaje_apertura ? `<button class="btn-sm" onclick="copiar(this,'${escapar(p.mensaje_apertura)}')">Copiar mensaje</button>` : ''}
+          <button class="btn-sm" onclick="copiarTodo(this,${i})">Copiar datos</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── UTILS ───────────────────────────────────────────
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapar(str) {
+  return String(str || '').replace(/'/g,"\\'").replace(/\n/g,' ');
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function copiar(btn, txt) {
+  navigator.clipboard.writeText(txt);
+  btn.textContent = '✓ Copiado'; btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = 'Copiar mensaje'; btn.classList.remove('ok'); }, 2000);
+}
+function copiarTodo(btn, idx) {
+  const p = prospects[idx];
+  const txt = `Empresa: ${p.name}\nTipo: ${p.type}\nDirección: ${p.address}\nTeléfono: ${p.phone || 'N/A'}\nWeb: ${p.website || 'N/A'}\nRating: ${p.rating || 'N/A'}\nMaps: ${p.maps_url}\nPain Point: ${p.pain_point}\nMensaje: ${p.mensaje_apertura}`;
+  navigator.clipboard.writeText(txt);
+  btn.textContent = '✓ Copiado'; btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = 'Copiar datos'; btn.classList.remove('ok'); }, 2000);
+}
+
+function exportCSV() {
+  if (!prospects.length) return;
+  const headers = ['Empresa','Tipo','Dirección','Teléfono','Web','Rating','Reviews','Google Maps','Pain Point','Mensaje Apertura'];
+  const rows = prospects.map(p => [
+    p.name, p.type, p.address, p.phone||'', p.website||'',
+    p.rating||'', p.reviews||'', p.maps_url, p.pain_point, p.mensaje_apertura
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'autopilot-prospectos-reales.csv';
+  a.click();
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('btnGen');
+  const sp = document.getElementById('spinEl');
+  const txt = document.getElementById('btnTxt');
+  const pw = document.getElementById('progWrap');
+  btn.disabled = on;
+  sp.style.display = on ? 'block' : 'none';
+  txt.textContent = on ? 'Buscando...' : '🔍 Buscar Empresas Reales';
+  pw.style.display = on ? 'block' : 'none';
+  if (!on) document.getElementById('progFill').style.width = '0%';
+}
+
+function setProgress(pct, msg) {
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progTxt').textContent = msg;
+}
+
+function mostrarError(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = msg; el.style.display = 'block';
+}
+</script>
+</body>
+</html>
