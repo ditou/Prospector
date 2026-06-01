@@ -21,13 +21,6 @@
   .logo span { color: var(--accent); }
   .badge-pill { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; background: var(--accent); color: #000; padding: 3px 9px; border-radius: 20px; }
 
-  .hero { padding: 28px 20px 20px; border-bottom: 1px solid var(--border); }
-  .hero h1 { font-size: 28px; font-weight: 800; line-height: 1.05; margin-bottom: 6px; }
-  .hero h1 em { color: var(--accent); font-style: normal; }
-  .hero p { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted2); line-height: 1.6; }
-
-  .free-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; background: #0d1a00; border: 1px solid #2a4000; border-radius: 20px; padding: 4px 12px; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); font-weight: 700; }
-
   .wrap { padding: 0 20px; }
 
   .section-label { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 12px; display: flex; align-items: center; gap: 8px; }
@@ -36,16 +29,23 @@
   .fcard { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
   label { display: block; font-size: 10px; font-family: 'Space Mono', monospace; font-weight: 700; color: var(--muted2); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
 
+  .key-wrap { position: relative; }
+  .key-input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px; padding: 10px 40px 10px 12px; outline: none; }
+  .key-input:focus { border-color: var(--accent); }
+  .key-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted2); cursor: pointer; font-size: 14px; padding: 4px; }
+  .key-status { font-size: 10px; font-family: 'Space Mono', monospace; margin-top: 5px; }
+  .key-status.ok { color: var(--accent); }
+  .key-status.err { color: var(--danger); }
+
   .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
   .tag { font-size: 11px; font-family: 'Space Mono', monospace; padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; background: transparent; color: var(--muted2); transition: all 0.15s; user-select: none; }
   .tag:hover { border-color: var(--accent); color: var(--text); }
   .tag.on { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
 
-  select { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 14px; padding: 10px 12px; outline: none; margin-bottom: 14px; -webkit-appearance: none; }
+  select { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 14px; padding: 10px 12px; outline: none; margin-bottom: 0; -webkit-appearance: none; }
   select:focus { border-color: var(--accent); }
   select option { background: #1a1a1a; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .row2 select { margin-bottom: 0; }
 
   .btn-gen { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; padding: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s, opacity 0.2s; margin-top: 8px; margin-bottom: 16px; }
   .btn-gen:active { transform: scale(0.98); }
@@ -71,11 +71,14 @@
   @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   .pcard-accent { height: 3px; background: var(--accent); }
   .pcard-body { padding: 14px 16px; }
-  .pcard-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .pcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+  .pcard-name { font-size: 15px; font-weight: 700; }
   .pcard-type { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--accent); margin-bottom: 8px; }
+  .rating-badge { font-size: 11px; font-family: 'Space Mono', monospace; font-weight: 700; padding: 3px 8px; border-radius: 20px; background: #1a2e00; color: var(--accent); border: 1px solid #3a5500; white-space: nowrap; flex-shrink: 0; margin-left: 8px; }
 
   .meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .meta-chip { font-size: 10px; font-family: 'Space Mono', monospace; background: var(--card2); border: 1px solid var(--border2); color: var(--muted2); padding: 3px 8px; border-radius: 6px; }
+  .meta-chip.highlight { border-color: #3a5500; color: var(--accent); background: #0d1a00; }
 
   .divider { height: 1px; background: var(--border); margin: 10px 0; }
   .info-label { font-size: 9px; font-family: 'Space Mono', monospace; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 4px; }
@@ -90,9 +93,8 @@
   .btn-sm { flex: 1; font-size: 10px; font-family: 'Space Mono', monospace; background: transparent; border: 1px solid var(--border2); color: var(--muted2); padding: 8px 6px; border-radius: 7px; cursor: pointer; transition: all 0.15s; }
   .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
   .btn-sm.ok { border-color: #3a5500; color: var(--accent); }
-
-  .rating-badge { font-size: 11px; font-family: 'Space Mono', monospace; font-weight: 700; padding: 3px 8px; border-radius: 20px; background: #1a2e00; color: var(--accent); border: 1px solid #3a5500; white-space: nowrap; flex-shrink: 0; margin-left: 8px; }
-  .pcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+  .btn-sm.wa { border-color: #1a4a2a; color: #25D366; }
+  .btn-sm.wa:hover { background: #0a1f10; }
 </style>
 </head>
 <body>
@@ -102,41 +104,45 @@
   <div class="badge-pill">PROSPECTOR REAL</div>
 </div>
 
-<div class="hero">
-  <h1>Empresas<br><em>reales.</em><br>Sin API key.</h1>
-  <p>// OpenStreetMap + IA → negocios reales en Argentina</p>
-  <div class="free-badge">✓ 100% GRATIS · SIN RESTRICCIONES</div>
-</div>
-
 <div class="wrap">
+
+  <div class="section-label">Google Places API Key</div>
+  <div class="fcard">
+    <label>Tu API Key</label>
+    <div class="key-wrap">
+      <input class="key-input" id="apiKey" type="password" placeholder="AIza..." autocomplete="off" />
+      <button class="key-toggle" onclick="toggleKey()" title="Mostrar/ocultar">👁</button>
+    </div>
+    <div class="key-status" id="keyStatus"></div>
+  </div>
 
   <div class="section-label">Que tipo de empresa busca</div>
 
   <div class="fcard">
     <label>Rubro / Industria</label>
     <div class="tags" id="tRubro">
-      <span class="tag" data-osm="amenity=bank">Banco/Finanzas</span>
-      <span class="tag" data-osm="amenity=clinic">Salud/Clinica</span>
-      <span class="tag" data-osm="amenity=school">Educacion</span>
-      <span class="tag" data-osm="amenity=restaurant">Gastronomia</span>
-      <span class="tag" data-osm="shop=estate_agent">Inmobiliaria</span>
-      <span class="tag" data-osm="amenity=pharmacy">Farmacia</span>
-      <span class="tag" data-osm="shop=car">Automotriz</span>
-      <span class="tag" data-osm="shop=clothes">Retail/Ropa</span>
-      <span class="tag" data-osm="office=lawyer">Legal</span>
-      <span class="tag" data-osm="office=accountant">Contabilidad</span>
-      <span class="tag" data-osm="amenity=gym">Gimnasio</span>
-      <span class="tag" data-osm="office=company">Empresa/Oficina</span>
+      <span class="tag" data-query="banco finanzas">Banco/Finanzas</span>
+      <span class="tag" data-query="clínica médico salud">Salud/Clinica</span>
+      <span class="tag" data-query="escuela colegio educación">Educacion</span>
+      <span class="tag" data-query="restaurante gastronomía">Gastronomia</span>
+      <span class="tag" data-query="inmobiliaria">Inmobiliaria</span>
+      <span class="tag" data-query="farmacia">Farmacia</span>
+      <span class="tag" data-query="concesionaria automotriz">Automotriz</span>
+      <span class="tag" data-query="ropa indumentaria">Retail/Ropa</span>
+      <span class="tag" data-query="estudio jurídico abogados">Legal</span>
+      <span class="tag" data-query="estudio contable contador">Contabilidad</span>
+      <span class="tag" data-query="gimnasio">Gimnasio</span>
+      <span class="tag" data-query="empresa oficina corporativo">Empresa/Oficina</span>
     </div>
 
     <label>Ciudad / Zona</label>
     <div class="tags" id="tZona">
-      <span class="tag on" data-area="Buenos Aires, Argentina" data-areaid="3082668">CABA</span>
-      <span class="tag" data-area="La Plata, Buenos Aires" data-areaid="1341137">La Plata</span>
-      <span class="tag" data-area="Rosario, Santa Fe" data-areaid="188077">Rosario</span>
-      <span class="tag" data-area="Córdoba, Argentina" data-areaid="349016">Cordoba</span>
-      <span class="tag" data-area="Mendoza, Argentina" data-areaid="181420">Mendoza</span>
-      <span class="tag" data-area="Mar del Plata, Buenos Aires" data-areaid="2305888">Mdp</span>
+      <span class="tag on" data-zona="Buenos Aires, CABA, Argentina">CABA</span>
+      <span class="tag" data-zona="La Plata, Buenos Aires, Argentina">La Plata</span>
+      <span class="tag" data-zona="Rosario, Santa Fe, Argentina">Rosario</span>
+      <span class="tag" data-zona="Córdoba, Argentina">Cordoba</span>
+      <span class="tag" data-zona="Mendoza, Argentina">Mendoza</span>
+      <span class="tag" data-zona="Mar del Plata, Buenos Aires, Argentina">Mdp</span>
     </div>
 
     <div class="row2">
@@ -149,7 +155,7 @@
         </select>
       </div>
       <div>
-        <label>Con telefono</label>
+        <label>Con teléfono</label>
         <select id="sPhone">
           <option value="false">Todos</option>
           <option value="true">Solo con tel.</option>
@@ -183,6 +189,26 @@
 <script>
 let prospects = [];
 
+// Guardar key en localStorage
+const keyInput = document.getElementById('apiKey');
+if (localStorage.getItem('gplaces_key')) {
+  keyInput.value = localStorage.getItem('gplaces_key');
+  document.getElementById('keyStatus').textContent = '✓ Key guardada localmente';
+  document.getElementById('keyStatus').className = 'key-status ok';
+}
+keyInput.addEventListener('input', () => {
+  const v = keyInput.value.trim();
+  if (v.length > 10) {
+    localStorage.setItem('gplaces_key', v);
+    document.getElementById('keyStatus').textContent = '✓ Guardada';
+    document.getElementById('keyStatus').className = 'key-status ok';
+  }
+});
+
+function toggleKey() {
+  keyInput.type = keyInput.type === 'password' ? 'text' : 'password';
+}
+
 // Tags
 document.querySelectorAll('#tRubro .tag').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
 document.querySelectorAll('#tZona .tag').forEach(t => t.addEventListener('click', () => {
@@ -191,114 +217,103 @@ document.querySelectorAll('#tZona .tag').forEach(t => t.addEventListener('click'
 }));
 
 async function buscar() {
+  const apiKey = keyInput.value.trim();
   const rubros = [...document.querySelectorAll('#tRubro .tag.on')];
   const zonaTag = document.querySelector('#tZona .tag.on');
   const cantidad = parseInt(document.getElementById('sCantidad').value);
   const soloPhone = document.getElementById('sPhone').value === 'true';
 
-  if (!rubros.length) { showErr('Selecciona al menos un rubro.'); return; }
-  if (!zonaTag) { showErr('Selecciona una zona.'); return; }
+  if (!apiKey) { showErr('Ingresá tu Google Places API key.'); return; }
+  if (!rubros.length) { showErr('Seleccioná al menos un rubro.'); return; }
+  if (!zonaTag) { showErr('Seleccioná una zona.'); return; }
 
   setLoading(true);
   document.getElementById('errMsg').style.display = 'none';
   document.getElementById('results').style.display = 'none';
 
   try {
-    setProgress(10, 'Consultando OpenStreetMap...');
+    const zona = zonaTag.dataset.zona;
+    let allPlaces = [];
 
-    const areaId = zonaTag.dataset.areaid;
-    const osmTags = rubros.map(t => t.dataset.osm);
+    // Por cada rubro seleccionado hacemos una búsqueda
+    for (let i = 0; i < rubros.length; i++) {
+      const rubro = rubros[i];
+      const searchQuery = `${rubro.dataset.query} en ${zona}`;
+      setProgress(Math.round(10 + (i / rubros.length) * 60), `Buscando ${rubro.textContent}...`);
 
-    // Build Overpass query
-    const filters = osmTags.map(tag => {
-      const [k, v] = tag.split('=');
-      return `node["${k}"="${v}"](area.searchArea);
-way["${k}"="${v}"](area.searchArea);`;
-    }).join('\n');
+      // Places Text Search (New) — necesita CORS proxy en browser
+      // Usamos el endpoint v1 con campo mask
+      const url = `https://places.googleapis.com/v1/places:searchText`;
+      const body = {
+        textQuery: searchQuery,
+        maxResultCount: Math.min(20, cantidad * 2),
+        languageCode: "es"
+      };
 
-    // Usamos el OSM relation ID correcto: 3600000000 + relation_id
-    const query = `
-[out:json][timeout:30];
-area(${3600000000 + parseInt(areaId)})->.searchArea;
-(
-${filters}
-);
-out body center ${cantidad * 3};`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.primaryTypeDisplayName,places.googleMapsUri,places.businessStatus'
+        },
+        body: JSON.stringify(body)
+      });
 
-    setProgress(30, 'Obteniendo datos reales...');
+      if (resp.status === 403) throw new Error('API key inválida o sin permisos. Verificá que Places API (New) esté habilitada.');
+      if (resp.status === 400) throw new Error('Error en la solicitud. Verificá que Places API (New) esté habilitada en tu proyecto de Google Cloud.');
+      if (!resp.ok) throw new Error('Error Google Places: ' + resp.status);
 
-    // Mirrors con CORS habilitado; overpass-api.de bloquea browsers
-    const mirrors = [
-      'https://overpass.kumi.systems/api/interpreter',
-      'https://lz4.overpass-api.de/api/interpreter',
-      'https://overpass.openstreetmap.ru/api/interpreter'
-    ];
-    let resp = null, lastErr = '';
-    for (const mirror of mirrors) {
-      try {
-        const r = await fetch(mirror, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: 'data=' + encodeURIComponent(query)
-        });
-        if (r.ok) { resp = r; break; }
-        lastErr = 'HTTP ' + r.status;
-      } catch(e) { lastErr = e.message; }
+      const data = await resp.json();
+      if (data.places) allPlaces.push(...data.places);
     }
-    if (!resp) throw new Error('No se pudo conectar a OpenStreetMap: ' + lastErr);
 
-    const data = await resp.json();
-    let elementos = data.elements || [];
+    setProgress(75, 'Procesando resultados...');
 
-    // Filter: must have a name
-    elementos = elementos.filter(e => e.tags && e.tags.name);
-
-    // Filter by phone if requested
-    if (soloPhone) elementos = elementos.filter(e => e.tags.phone || e.tags['contact:phone']);
-
-    // Dedupe by name
+    // Dedupe por nombre
     const seen = new Set();
-    elementos = elementos.filter(e => {
-      if (seen.has(e.tags.name)) return false;
-      seen.add(e.tags.name); return true;
+    allPlaces = allPlaces.filter(p => {
+      const name = p.displayName?.text || '';
+      if (!name || seen.has(name)) return false;
+      seen.add(name); return true;
     });
 
-    elementos = elementos.slice(0, cantidad);
+    // Solo operativos
+    allPlaces = allPlaces.filter(p => p.businessStatus !== 'CLOSED_PERMANENTLY');
 
-    if (!elementos.length) {
+    // Filtrar por teléfono si se pide
+    if (soloPhone) allPlaces = allPlaces.filter(p => p.nationalPhoneNumber || p.internationalPhoneNumber);
+
+    allPlaces = allPlaces.slice(0, cantidad);
+
+    if (!allPlaces.length) {
       showErr('No se encontraron resultados. Probá con otro rubro o zona.');
       setLoading(false); return;
     }
 
-    setProgress(60, 'Procesando ' + elementos.length + ' empresas...');
+    // Mapear a formato prospect
+    const raw = allPlaces.map(p => ({
+      name: p.displayName?.text || '',
+      type: p.primaryTypeDisplayName?.text || '',
+      address: p.formattedAddress || zona,
+      phone: p.nationalPhoneNumber || p.internationalPhoneNumber || null,
+      website: p.websiteUri || null,
+      email: null,
+      rating: p.rating || null,
+      reviews: p.userRatingCount || 0,
+      gmaps_url: p.googleMapsUri || `https://www.google.com/maps/search/${encodeURIComponent((p.displayName?.text||'') + ' ' + zona)}`
+    }));
 
-    // Map to prospect objects
-    const raw = elementos.map(e => {
-      const t = e.tags;
-      const lat = e.lat || e.center?.lat;
-      const lon = e.lon || e.center?.lon;
-      return {
-        name: t.name,
-        type: t.amenity || t.shop || t.office || t.tourism || '',
-        address: [t['addr:street'], t['addr:housenumber'], t['addr:city']].filter(Boolean).join(' ') || zonaTag.dataset.area,
-        phone: t.phone || t['contact:phone'] || t['contact:mobile'] || null,
-        website: t.website || t['contact:website'] || null,
-        email: t.email || t['contact:email'] || null,
-        maps_url: lat ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&zoom=18` : null,
-        gmaps_url: lat ? `https://www.google.com/maps/search/${encodeURIComponent(t.name)}/@${lat},${lon},17z` : `https://www.google.com/maps/search/${encodeURIComponent(t.name + ' ' + zonaTag.dataset.area)}`
-      };
-    });
+    setProgress(85, 'Enriqueciendo con IA...');
+    prospects = await enrichAI(raw, rubros.map(r => r.textContent).join(', '), zona);
 
-    setProgress(75, 'Enriqueciendo con IA...');
-    prospects = await enrichAI(raw, rubros.map(r => r.textContent).join(', '), zonaTag.dataset.area);
-
-    setProgress(100, 'Listo!');
+    setProgress(100, '¡Listo!');
     await sleep(300);
     renderResults(prospects);
 
   } catch(err) {
     console.error(err);
-    showErr('Error: ' + err.message);
+    showErr(err.message);
   } finally {
     setLoading(false);
   }
@@ -354,6 +369,11 @@ function renderResults(data) {
     const card = document.createElement('div');
     card.className = 'pcard';
     card.style.animationDelay = i * 0.06 + 's';
+
+    const waLink = p.phone
+      ? `https://wa.me/${p.phone.replace(/[^0-9]/g,'').replace(/^0/, '54')}`
+      : null;
+
     card.innerHTML = `
       <div class="pcard-accent"></div>
       <div class="pcard-body">
@@ -362,11 +382,12 @@ function renderResults(data) {
             <div class="pcard-name">${esc(p.name)}</div>
             <div class="pcard-type">${esc(p.type)}</div>
           </div>
+          ${p.rating ? `<span class="rating-badge">★ ${p.rating}${p.reviews ? ' <span style="font-weight:400;color:var(--muted2)">(${p.reviews})</span>' : ''}</span>` : ''}
         </div>
         <div class="meta-row">
           <span class="meta-chip">📍 ${esc(p.address)}</span>
-          ${p.phone ? `<span class="meta-chip">📞 ${esc(p.phone)}</span>` : ''}
-          ${p.email ? `<span class="meta-chip">✉️ ${esc(p.email)}</span>` : ''}
+          ${p.phone ? `<span class="meta-chip highlight">📞 ${esc(p.phone)}</span>` : ''}
+          ${p.website ? `<span class="meta-chip">🌐 web</span>` : ''}
         </div>
         <div class="divider"></div>
         ${p.pain_point ? `<div class="info-label">PAIN POINT</div><div class="info-val">→ ${esc(p.pain_point)}</div>` : ''}
@@ -377,7 +398,8 @@ function renderResults(data) {
           ${p.website ? `<br><a href="${p.website}" target="_blank">→ ${esc(p.website)}</a>` : ''}
         </div>
         <div class="pcard-actions">
-          ${p.mensaje_apertura ? `<button class="btn-sm" onclick="copiar(this,'${escapar(p.mensaje_apertura)}')">Copiar mensaje</button>` : ''}
+          ${waLink ? `<button class="btn-sm wa" onclick="window.open('${waLink}','_blank')">WhatsApp</button>` : ''}
+          ${p.mensaje_apertura ? `<button class="btn-sm" onclick="copiar(this,'${escapar(p.mensaje_apertura)}')">Copiar msg</button>` : ''}
           <button class="btn-sm" onclick="copiarTodo(this,${i})">Copiar datos</button>
         </div>
       </div>`;
@@ -393,20 +415,20 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function copiar(btn, txt) {
   navigator.clipboard.writeText(txt);
-  btn.textContent = 'Copiado'; btn.classList.add('ok');
-  setTimeout(() => { btn.textContent = 'Copiar mensaje'; btn.classList.remove('ok'); }, 2000);
+  btn.textContent = 'Copiado ✓'; btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = 'Copiar msg'; btn.classList.remove('ok'); }, 2000);
 }
 function copiarTodo(btn, idx) {
   const p = prospects[idx];
-  const txt = `Empresa: ${p.name}\nTipo: ${p.type}\nDireccion: ${p.address}\nTelefono: ${p.phone||'N/A'}\nWeb: ${p.website||'N/A'}\nEmail: ${p.email||'N/A'}\nMaps: ${p.gmaps_url}\nPain Point: ${p.pain_point}\nMensaje: ${p.mensaje_apertura}`;
+  const txt = `Empresa: ${p.name}\nTipo: ${p.type}\nDirección: ${p.address}\nTeléfono: ${p.phone||'N/A'}\nWeb: ${p.website||'N/A'}\nRating: ${p.rating||'N/A'}\nMaps: ${p.gmaps_url}\nPain Point: ${p.pain_point}\nMensaje: ${p.mensaje_apertura}`;
   navigator.clipboard.writeText(txt);
-  btn.textContent = 'Copiado'; btn.classList.add('ok');
+  btn.textContent = 'Copiado ✓'; btn.classList.add('ok');
   setTimeout(() => { btn.textContent = 'Copiar datos'; btn.classList.remove('ok'); }, 2000);
 }
 function exportCSV() {
   if (!prospects.length) return;
-  const h = ['Empresa','Tipo','Direccion','Telefono','Web','Email','Google Maps','Pain Point','Mensaje'];
-  const rows = prospects.map(p => [p.name,p.type,p.address,p.phone||'',p.website||'',p.email||'',p.gmaps_url,p.pain_point,p.mensaje_apertura].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const h = ['Empresa','Tipo','Dirección','Teléfono','Web','Rating','Google Maps','Pain Point','Mensaje'];
+  const rows = prospects.map(p => [p.name,p.type,p.address,p.phone||'',p.website||'',p.rating||'',p.gmaps_url,p.pain_point,p.mensaje_apertura].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
   const csv = [h.join(','),...rows].join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
